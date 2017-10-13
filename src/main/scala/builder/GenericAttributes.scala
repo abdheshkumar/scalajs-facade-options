@@ -1,7 +1,7 @@
 package builder
 
 import org.querki.jsext
-import org.querki.jsext.{JSOptionSetter, OptMap}
+import org.querki.jsext.{JSOptionBuilder, JSOptionSetter, OptMap}
 
 import scala.scalajs.js
 
@@ -11,16 +11,17 @@ trait GenericAttributes extends CellAttributes {
   val `type`: js.UndefOr[String] = js.undefined
 }
 
-object GenericAttributes {
-  val angel = "angel"
-  val `type` = "type"
+trait GenericAttributesSetters[T <: js.Object, B <: JSOptionBuilder[T, _]]
+  extends JSOptionSetter[T, B]
+    with CellAttributesSetters[T, B] {
+  def angel(a: Int) = jsOpt("angel", a)
+
+  def `type`(t: String) = jsOpt("type", t)
 }
 
-class GenericAttributesBuilder(override val dict: OptMap) extends
-  CellAttributesBuilder(dict) with JSOptionSetter[GenericAttributes, GenericAttributesBuilder] {
-  def angel(a: Int) = jsOpt(GenericAttributes.angel, a)
+class GenericAttributesBuilder(val dict: OptMap)
+  extends JSOptionBuilder[GenericAttributes, GenericAttributesBuilder](new GenericAttributesBuilder(_))
+    with GenericAttributesSetters[GenericAttributes, GenericAttributesBuilder]
 
-  def `type`(t: String) = jsOpt(GenericAttributes.`type`, t)
-}
 
-object GenericAttributesBuilder extends GenericAttributesBuilder(jsext.noOpts)
+object GenericAttributes extends GenericAttributesBuilder(jsext.noOpts)
